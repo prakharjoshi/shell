@@ -168,7 +168,7 @@ void eval(char *cmdline)
     char *argv[MAXARGS];
     int a;
     pid_t pid=0;
-    bg = parseline(cmdline,argv);
+    a = parseline(cmdline,argv);
 
     //if nothing is entered in the array
     if(argv[0] == NULL)
@@ -297,26 +297,31 @@ void do_bgfg(char **argv)
 {
     struct job_t *job;
   char *id = argv[1];
-  int j_id;
+  int jid;
 
-  if(id == NULL) { //i f nothing is entered as PID or JID
+  if(id == NULL)                //i f nothing is entered as PID or JID
+  {                            
     printf("%s command requires PID or JID \n", argv[0]);
     return;
   }
 
-  if(id[0] == '%') {    //for JID
-    j_id= atoi(&id[1]);
-    if(!(job= getjobjid(jobs, j_id))) {  //JID validity
+  if(id[0] == '%')      //for JID
+  {    
+    jid= atoi(&id[1]);
+    if(!(job= getjobjid(jobs, jid)))      //JID validity 
+    {  
       printf("%s: No such job\n", id);
       return;
     }
     
   }
 
-  else if(isdigit(id[0])) { //for PID
+  else if(isdigit(id[0]))               //for PID
+  { 
     pid_t pid= atoi(id);
 
-    if(!(job= getjobpid(jobs, pid))) {  //PID validity
+    if(!(job= getjobpid(jobs, pid)))        //PID validity 
+    {  
       printf("(%d): No such process\n", pid);
       return;
     }
@@ -324,21 +329,24 @@ void do_bgfg(char **argv)
   }
 
   else {        
-    printf("%s: argument must be a PID or %%jobid\n", argv[0]);//if both JID and PID are invalid
+    printf("%s: argument must be a PID or %%jobid\n", argv[0]);     //if both JID and PID are invalid
     return;
   }
 
     //evaluate bg or fg
-  if(!strcmp("fg", argv[0])) {          //if'fg'is entered
+  if(!strcmp("fg", argv[0]))              //if'fg'is entered
+  {          
     job->state = FG;                    //state changed to FG
     kill(-(job->pid),SIGCONT);
     waitfg(job->pid);
   }
-  else if(!strcmp("bg", argv[0])) { //if'bg'is entered
-    printf("[%d] (%d) %s", job->j_id, job->pid, job->cmdline); //state changed to BG
+  else if(!strcmp("bg", argv[0]))          //if'bg'is entered
+  { 
+    printf("[%d] (%d) %s", job->jid, job->pid, job->cmdline); //state changed to BG
     job->state = BG;
   }
-  else {
+  else 
+  {
     printf("bg/fg error: %s\n", argv[0]);
   }
 }
@@ -521,10 +529,6 @@ pid_t fgpid(struct job_t *jobs) {
     int i;
 
     for (i = 0; i < MAXJOBS; i++)
-	if (jobs[i].state == FG)
-	    return jobs[i].pid;
-    return 0;
-}
 
 /* getjobpid  - Find a job (by PID) on the job list */
 struct job_t *getjobpid(struct job_t *jobs, pid_t pid) {
